@@ -101,18 +101,13 @@
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec'; 
 
     if(APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec') {
+        // อัปเดต: เปลี่ยนมาใช้ GET Request + no-cors จะทำงานบน Github Pages ได้โดยไม่ถูกบล็อก
         fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // สำคัญ: เพื่อไม่ให้ติดปัญหาบล็อกการส่งข้อมูลข้ามโดเมน
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'log_visitor'
-            })
+            method: 'GET',
+            mode: 'no-cors' 
         })
-        .then(response => console.log('ส่งข้อมูลให้ Google Sheets เรียบร้อย'))
-        .catch(error => console.error('เกิดข้อผิดพลาด:', error));
+        .then(() => console.log('ส่งคำขอเก็บบันทึกสถิติไปที่ Google Sheets แล้ว'))
+        .catch(error => console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error));
     } else {
         console.warn('ระบบเก็บสถิติยังไม่ทำงาน: อย่าลืมใส่ APPS_SCRIPT_URL');
     }
@@ -159,34 +154,6 @@
  
   card.addEventListener('click', pickRandomMeme);
  
-  /* ---------- เอฟเฟกต์ 3 มิติ: เอียงตามตำแหน่งเมาส์ ---------- */
-  const maxTilt = 14;
- 
-  function handleMove(clientX, clientY){
-    const rect = card.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    const px = (x / rect.width) - 0.5;
-    const py = (y / rect.height) - 0.5;
- 
-    const rotateY = px * maxTilt * 2;
-    const rotateX = -py * maxTilt * 2;
- 
-    card.style.transform =
-      `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-  }
- 
-  function resetTilt(){
-    card.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
-  }
- 
-  card.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
-  card.addEventListener('mouseleave', resetTilt);
- 
-  card.addEventListener('touchmove', (e) => {
-    if (e.touches[0]) handleMove(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-  card.addEventListener('touchend', resetTilt);
 </script>
  
 </body>

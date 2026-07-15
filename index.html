@@ -100,14 +100,12 @@
     // ลิงก์ Google Apps Script ของคุณ
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec'; 
 
-    // ยิง API ส่งข้อมูลไป Google Sheets ทันทีแบบไม่บล็อก CORS (สำหรับ Github Pages)
-    fetch(APPS_SCRIPT_URL, {
-        method: 'GET',
-        mode: 'no-cors' 
-    })
-    .then(() => console.log('ส่งคำขอเก็บบันทึกสถิติไปที่ Google Sheets แล้ว'))
-    .catch(error => console.error('เกิดข้อผิดพลาดในการส่งข้อมูล:', error));
+    // ใช้วิธี Image Tracker (จำลองการโหลดรูปภาพ) เพื่อบังคับส่งข้อมูล GET ทะลุระบบป้องกันของ GitHub
+    // และใส่ตัวแปร + "?t=" ... เพื่อป้องกันไม่ให้เบราว์เซอร์จดจำ Cache
+    const tracker = new Image();
+    tracker.src = APPS_SCRIPT_URL + "?t=" + new Date().getTime();
     
+    console.log('ส่งคำขอเก็บบันทึกสถิติไปที่ Google Sheets แล้ว (ผ่าน Image Tracker)');
   });
 
 

@@ -5,113 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meme Roulette</title>
 <style>
-  :root{
-    --bg-1:#ff7a1a;
-    --bg-2:#ff8c2b;
-    --accent:#ffd43b;
-    --accent-2:#ff5d8f;
-    --card-bg:#221c40;
-    --text:#f5f2ff;
-    --muted:#a89fce;
+  :root {
+    --bg-1: #ff7a1a;
+    --bg-2: #ff8c2b;
+    --accent: #ffd43b;
+    --accent-2: #ff5d8f;
+    --card-bg: #221c40;
+    --text: #f5f2ff;
+    --muted: #a89fce;
   }
  
-  *{box-sizing:border-box;}
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
  
-  html,body{
-    margin:0;
-    height:100%;
-    background:
+  html, body {
+    height: 100%;
+    background: 
       radial-gradient(circle at 20% 20%, rgba(255,255,255,0.12), transparent 40%),
       radial-gradient(circle at 80% 80%, rgba(0,0,0,0.08), transparent 45%),
       linear-gradient(160deg, var(--bg-2), var(--bg-1));
-    color:var(--text);
-    font-family:'Segoe UI', 'Trebuchet MS', system-ui, sans-serif;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
+    color: var(--text);
+    font-family: 'Segoe UI', 'Trebuchet MS', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
  
-  .stage{
-    perspective:1200px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:0;
-    padding:20px;
+  .stage {
+    perspective: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 20px;
+    width: 100%;
   }
  
-  .card{
-    position:relative;
-    width:min(88vw, 420px);
+  .card {
+    position: relative;
+    width: min(88vw, 400px);
     aspect-ratio: 4 / 5;
-    border-radius:22px;
-    background:var(--card-bg);
-    box-shadow:
-      0 25px 50px -15px rgba(0,0,0,0.6),
-      0 0 0 1px rgba(255,255,255,0.05) inset;
-    transform-style:preserve-3d;
-    transition:transform 0.15s ease-out, box-shadow 0.3s;
-    cursor:pointer;
-    overflow:hidden;
-    will-change:transform;
+    border-radius: 22px;
+    background: var(--card-bg);
+    box-shadow: 
+      0 30px 60px -15px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.1) inset;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease, box-shadow 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+    will-change: transform;
   }
  
-  .card:active{ transform: scale(0.98) !important; }
- 
-  .card img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    transform:translateZ(40px) scale(1.02);
-    pointer-events:none;
-    user-select:none;
-    -webkit-user-drag:none;
+  .card:active { 
+    transform: scale(0.95) !important; 
+    transition: transform 0.05s ease;
   }
  
-  .shine{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(120deg, rgba(255,255,255,0.25), transparent 40%);
-    opacity:0;
-    transition:opacity 0.2s;
-    mix-blend-mode:overlay;
-    pointer-events:none;
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translateZ(40px) scale(1.05);
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.2s ease-in-out;
+    background: var(--card-bg);
   }
-  .card:hover .shine{ opacity:1; }
+ 
+  .shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255,255,255,0.3), transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    transform: translateZ(50px);
+    border-radius: 22px;
+  }
+  
+  .card:hover .shine { 
+    opacity: 1; 
+  }
 </style>
 </head>
 <body>
  
   <div class="stage">
     <div class="card" id="card">
-      <img id="memeImg" src="" alt="">
-      <div class="shine"></div>
+      <img id="memeImg" src="" alt="Meme image">
+      <div class="shine" id="shine"></div>
     </div>
   </div>
  
 <script>
-  /* ============================================================
-     ส่วนที่ 1: ระบบเก็บบันทึกสถิติผู้เข้าชมลง Google Sheets
-     ============================================================ */
-  window.addEventListener('DOMContentLoaded', (event) => {
-    
-    // ลิงก์ Google Apps Script ของคุณ
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec'; 
-
-    // ใช้วิธี Image Tracker (จำลองการโหลดรูปภาพ) เพื่อบังคับส่งข้อมูล GET ทะลุระบบป้องกันของ GitHub
-    // และใส่ตัวแปร + "?t=" ... เพื่อป้องกันไม่ให้เบราว์เซอร์จดจำ Cache
-    const tracker = new Image();
-    tracker.src = APPS_SCRIPT_URL + "?t=" + new Date().getTime();
-    
-    console.log('ส่งคำขอเก็บบันทึกสถิติไปที่ Google Sheets แล้ว (ผ่าน Image Tracker)');
-  });
-
-
-  /* ============================================================
-     ส่วนที่ 2: ระบบ Meme Roulette (คลังรูปมีมและเอฟเฟกต์)
-     ============================================================ */
   const memes = [
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2jOVfA9GudNZN7VPub072Y1PUnsBSgFVur0VjYjMjzQlCu745uTsqkiTl&s=10",
     "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQ6b0XVJmuMGY6UNhtDyi8znh78jEKucAlZY4SC-3H_QFQ-m6_GK8O5_Yrc4dchEBxkqCo3-e5q4efnObpU1GxpBAjp8slzqLw0FGNDdnI-_5QE0AFJQzqkcDxPJ3BguyL3Q-T944EBcw/s680/E177ydyVoAEml4u.jpg",
@@ -123,12 +117,19 @@
     "https://pbs.twimg.com/media/Dr0JNJ2U8AAOT3w.jpg",
   ];
  
+  // Preload images for smoother experience
+  memes.forEach(url => {
+    const img = new Image();
+    img.src = url;
+  });
+
   const card = document.getElementById('card');
   const img = document.getElementById('memeImg');
+  const shine = document.getElementById('shine');
  
   let lastIndex = -1;
  
-  function pickRandomMeme(){
+  function pickRandomMeme() {
     let idx;
     do {
       idx = Math.floor(Math.random() * memes.length);
@@ -138,18 +139,76 @@
     img.style.opacity = 0;
     setTimeout(() => {
       img.src = memes[idx];
-      img.style.opacity = 1;
-    }, 120);
+      img.onload = () => {
+        img.style.opacity = 1;
+      };
+    }, 150);
   }
- 
-  img.style.transition = "opacity 0.15s ease";
  
   // สุ่มรูปทันทีที่เปิดหน้า
   pickRandomMeme();
- 
-  card.addEventListener('click', pickRandomMeme);
- 
+  
+  // ฟังก์ชันสำหรับส่งข้อมูลไป Google Sheets เมื่อมีการคลิก
+  function trackClickToSheets() {
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec'; 
+
+    // ใช้ fetch แบบ no-cors เพื่อทะลุกำแพงระบบป้องกัน CORS ของ GitHub Pages
+    fetch(APPS_SCRIPT_URL + "?action=click&t=" + new Date().getTime(), {
+      method: 'GET',
+      mode: 'no-cors'
+    }).then(() => {
+      console.log('บันทึกการคลิกไปที่ Google Sheets สำเร็จ');
+    }).catch(err => {
+      console.error('พบปัญหาในการบันทึกข้อมูล:', err);
+    });
+  }
+
+  // เมื่อคลิกที่การ์ด ให้ทำการบันทึกข้อมูลอย่างเดียว (นำคำสั่งเปลี่ยนรูปออกแล้ว)
+  card.addEventListener('click', trackClickToSheets);
+
+  // สร้างฟังก์ชันให้การ์ดเอียงตามตำแหน่งเมาส์/นิ้ว
+  function handleMove(e) {
+    const rect = card.getBoundingClientRect();
+    
+    // คำนวณหาตำแหน่งพิกัด X, Y
+    let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    // หาจุดศูนย์กลาง
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // คำนวณองศาการหมุน (ปรับตัวเลขเพื่อเพิ่ม/ลดความชัน)
+    const rotateX = ((y - centerY) / centerY) * -15;
+    const rotateY = ((x - centerX) / centerX) * 15;
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    
+    // อัปเดตแสงสะท้อนให้สมจริงตามพิกัด
+    const shineX = (x / rect.width) * 100;
+    const shineY = (y / rect.height) * 100;
+    shine.style.background = `radial-gradient(circle at ${shineX}% ${shineY}%, rgba(255,255,255,0.4) 0%, transparent 60%)`;
+  }
+
+  function handleReset() {
+    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+    shine.style.background = `linear-gradient(120deg, rgba(255,255,255,0.3), transparent 50%)`;
+  }
+
+  // ผูก Event Listener สำหรับ Desktop และ Mobile
+  card.addEventListener('mousemove', handleMove);
+  card.addEventListener('mouseleave', handleReset);
+  
+  card.addEventListener('touchmove', (e) => {
+    // ป้องกันหน้าจอเลื่อนเวลาถูบนการ์ด
+    e.preventDefault(); 
+    handleMove(e);
+  }, { passive: false });
+  card.addEventListener('touchend', handleReset);
+
 </script>
- 
 </body>
 </html>

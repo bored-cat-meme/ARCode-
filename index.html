@@ -148,23 +148,23 @@
   // สุ่มรูปทันทีที่เปิดหน้า
   pickRandomMeme();
   
-  // ฟังก์ชันสำหรับส่งข้อมูลไป Google Sheets เมื่อมีการคลิก
-  function trackClickToSheets() {
+  // ฟังก์ชันสำหรับส่งข้อมูลไป Google Sheets เพื่อนับยอดเข้าชมเว็บ
+  function trackPageVisit() {
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnYVMQxWt8r1MknJuP4Kjoz3OpRCrNachNpIzpHW8SyblVg8rGN58KnI_y9eK60gSU/exec'; 
 
     // ใช้ fetch แบบ no-cors เพื่อทะลุกำแพงระบบป้องกัน CORS ของ GitHub Pages
-    fetch(APPS_SCRIPT_URL + "?action=click&t=" + new Date().getTime(), {
+    fetch(APPS_SCRIPT_URL + "?action=visit&t=" + new Date().getTime(), {
       method: 'GET',
       mode: 'no-cors'
     }).then(() => {
-      console.log('บันทึกการคลิกไปที่ Google Sheets สำเร็จ');
+      console.log('บันทึกการเข้าชมไปที่ Google Sheets สำเร็จ');
     }).catch(err => {
       console.error('พบปัญหาในการบันทึกข้อมูล:', err);
     });
   }
 
-  // เมื่อคลิกที่การ์ด ให้ทำการบันทึกข้อมูลอย่างเดียว (นำคำสั่งเปลี่ยนรูปออกแล้ว)
-  card.addEventListener('click', trackClickToSheets);
+  // เรียกใช้ฟังก์ชันบันทึกข้อมูลทันทีเมื่อหน้าเว็บโหลดเสร็จ
+  window.addEventListener('load', trackPageVisit);
 
   // สร้างฟังก์ชันให้การ์ดเอียงตามตำแหน่งเมาส์/นิ้ว
   function handleMove(e) {
